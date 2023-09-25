@@ -91,14 +91,13 @@ def main(input_file, procedure, image_size=384):
             st.image(image, channels="RGB", use_column_width=True)
 
         with col2:
-            st.title("Scanned")
+            st.title("Output")
 
             if procedure == "Traditional":
                 output = traditional_scan(og_image=image)
             else:
                 model = model_mbv3 if model_selected == "MobilenetV3-Large" else model_r50
                 output = deep_learning_scan(og_image=image, trained_model=model, image_size=image_size)
-                print(output)
 
             st.image(output, channels="RGB", use_column_width=True)
 

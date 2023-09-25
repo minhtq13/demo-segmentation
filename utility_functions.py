@@ -27,21 +27,31 @@ def get_image_download_link(img, filename, text):
 
 
 def order_points(pts):
+    print(pts)
+
     """Rearrange coordinates to order:
     top-left, top-right, bottom-right, bottom-left"""
     rect = np.zeros((4, 2), dtype="float32")
     pts = np.array(pts)
     s = pts.sum(axis=1)
-    # Top-left point will have the smallest sum.
-    rect[0] = pts[np.argmin(s)]
-    # Bottom-right point will have the largest sum.
+    print(s)
+    # Top-left point will have the smallest sum. => A: 0
+    rect[0] = pts[np.argmin(s)] 
+    print("rect[0], A-0: ", rect[0])
+    # Bottom-right point will have the largest sum. => D: 2
     rect[2] = pts[np.argmax(s)]
+    print("rect[2], D-2: ", rect[2])
 
     diff = np.diff(pts, axis=1)
-    # Top-right point will have the smallest difference.
+    print(diff)
+    # Top-right point will have the smallest difference. => C: 1
     rect[1] = pts[np.argmin(diff)]
-    # Bottom-left will have the largest difference.
+    print("rect[1], C-1: ", rect[1])
+    # Bottom-left will have the largest difference. => B: 3
     rect[3] = pts[np.argmax(diff)]
+    print("rect[3], B-3: ", rect[3])
+    print("===================================")
+
     # return the ordered coordinates
     return rect.astype("int").tolist()
 
@@ -76,15 +86,10 @@ def generate_output(image: np.array, corners: list, scale: tuple = None, resize_
         corners = np.multiply(corners, scale)
 
     destination_corners = find_dest(corners)
-    # print("destination_corners", destination_corners)
     M = cv2.getPerspectiveTransform(np.float32(corners), np.float32(destination_corners))
-    # print("M", M)
     out = cv2.warpPerspective(image, M, (destination_corners[2][0], destination_corners[2][1]), flags=cv2.INTER_LANCZOS4)
-    # print("out1", out)
     out = np.clip(out, a_min=0, a_max=255)
-    # print("out2", out)
     out = out.astype(np.uint8)
-    # print("out3", out)
     return out
 
 
@@ -142,7 +147,7 @@ def deep_learning_scan(og_image: np.array = None, trained_model=None, image_size
     half = image_size // 2
 
     imH, imW, C = og_image.shape
-    print(imH, imW, C)
+    # print(imH, imW, C)
 
     image_model = cv2.resize(og_image, (image_size, image_size), interpolation=cv2.INTER_NEAREST)
     scale_x = imW / image_size
@@ -236,7 +241,7 @@ def deep_learning_scan(og_image: np.array = None, trained_model=None, image_size
 
     corners = sorted(corners.tolist())
     output = generate_output(og_image, corners)
-    print(output)
+    # print(output)
 
     return output
 

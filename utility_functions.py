@@ -27,14 +27,18 @@ def get_image_download_link(img, filename, text):
 
 
 def order_points(pts):
-    print(pts)
+    # print(pts)
 
     """Rearrange coordinates to order:
     top-left, top-right, bottom-right, bottom-left"""
     rect = np.zeros((4, 2), dtype="float32")
     pts = np.array(pts)
+    # print("======================")
+    # print(pts)
+    # print("======================")
+
     s = pts.sum(axis=1)
-    print(s)
+    # print(s)
     # Top-left point will have the smallest sum. => A: 0
     rect[0] = pts[np.argmin(s)] 
     print("rect[0], A-0: ", rect[0])
@@ -43,14 +47,15 @@ def order_points(pts):
     print("rect[2], D-2: ", rect[2])
 
     diff = np.diff(pts, axis=1)
-    print(diff)
+    # print("diff", diff)
+    # print(diff)
     # Top-right point will have the smallest difference. => C: 1
     rect[1] = pts[np.argmin(diff)]
     print("rect[1], C-1: ", rect[1])
     # Bottom-left will have the largest difference. => B: 3
     rect[3] = pts[np.argmax(diff)]
     print("rect[3], B-3: ", rect[3])
-    print("===================================")
+    # print("===================================")
 
     # return the ordered coordinates
     return rect.astype("int").tolist()
@@ -88,12 +93,16 @@ def generate_output(image: np.array, corners: list, scale: tuple = None, resize_
     destination_corners = find_dest(corners)
     M = cv2.getPerspectiveTransform(np.float32(corners), np.float32(destination_corners))
     out = cv2.warpPerspective(image, M, (destination_corners[2][0], destination_corners[2][1]), flags=cv2.INTER_LANCZOS4)
+    # print("corners", corners)
+    # print("destination_corners", destination_corners)
     out = np.clip(out, a_min=0, a_max=255)
     out = out.astype(np.uint8)
     return out
 
 
 def traditional_scan(og_image: np.array):
+    # cv2.imshow("a", og_image)
+    # cv2.waitKey(0)
     # Resize image to workable size
     dim_limit = 1080
     max_dim = max(og_image.shape)
@@ -120,11 +129,16 @@ def traditional_scan(og_image: np.array):
     canny = cv2.Canny(gray, 0, 200)
     canny = cv2.dilate(canny, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5)))
 
+
+    # con = np.zeros_like(og_image)
     # Finding contours for the detected edges.
     contours, hierarchy = cv2.findContours(canny, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
     # Keeping only the largest detected contour.
     page = sorted(contours, key=cv2.contourArea, reverse=True)[:5]
-
+    # con = cv2.drawContours(con, page, -1, (0, 255, 255), 3)
+    # cv2.imshow("a", con)
+    # cv2.waitKey(0)
+    # con = np.zeros_like(og_image)
     # Detecting Edges through Contour approximation.
     # Loop over the contours.
     if len(page) == 0:
@@ -136,10 +150,20 @@ def traditional_scan(og_image: np.array):
         # If our approximated contour has four points.
         if len(corners) == 4:
             break
+    # cv2.drawContours(con, c, -1, (0, 255, 255), 3)
+    # cv2.drawContours(con, corners, -1, (0, 255, 0), 10)
     # Sorting the corners and converting them to desired shape.
     corners = sorted(np.concatenate(corners).tolist())
-    output = generate_output(orig_img, corners)
+      # Displaying the corners.
+    # for index, c in enumerate(corners):
+    #     character = chr(65 + index)
+    #     cv2.putText(con, character, tuple(c), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 1, cv2.LINE_AA)
 
+
+    output = generate_output(orig_img, corners)
+    cv2.imshow("a", output)
+    cv2.waitKey(0)
+  
     return output
 
 

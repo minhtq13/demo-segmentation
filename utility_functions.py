@@ -25,10 +25,9 @@ def get_image_download_link(img, filename, text):
         time.sleep(2)
     return href
 
-
+# Sắp xếp lại các đỉnh A => B => C => D
+# Sắp xếp lại các đỉnh Top-left => Top-right => Bottom-right => Bottom-left
 def order_points(pts):
-    # print(pts)
-
     """Rearrange coordinates to order:
     top-left, top-right, bottom-right, bottom-left"""
     rect = np.zeros((4, 2), dtype="float32")
@@ -38,23 +37,16 @@ def order_points(pts):
     # print("======================")
 
     s = pts.sum(axis=1)
-    # print(s)
     # Top-left point will have the smallest sum. => A: 0
     rect[0] = pts[np.argmin(s)] 
-    print("rect[0], A-0: ", rect[0])
     # Bottom-right point will have the largest sum. => D: 2
     rect[2] = pts[np.argmax(s)]
-    print("rect[2], D-2: ", rect[2])
 
     diff = np.diff(pts, axis=1)
-    # print("diff", diff)
-    # print(diff)
     # Top-right point will have the smallest difference. => C: 1
     rect[1] = pts[np.argmin(diff)]
-    print("rect[1], C-1: ", rect[1])
     # Bottom-left will have the largest difference. => B: 3
     rect[3] = pts[np.argmax(diff)]
-    print("rect[3], B-3: ", rect[3])
     # print("===================================")
 
     # return the ordered coordinates
@@ -63,6 +55,10 @@ def order_points(pts):
 
 def find_dest(pts):
     (tl, tr, br, bl) = pts
+    print("tl", tl)
+    print("tr", tr)
+    print("br", br)
+    print("bl", bl)
     # Finding the maximum width.
     widthA = np.sqrt(((br[0] - bl[0]) ** 2) + ((br[1] - bl[1]) ** 2))
     widthB = np.sqrt(((tr[0] - tl[0]) ** 2) + ((tr[1] - tl[1]) ** 2))
@@ -85,12 +81,13 @@ def image_preprocess_transforms(mean=(0.4611, 0.4359, 0.3905), std=(0.2193, 0.21
 
 def generate_output(image: np.array, corners: list, scale: tuple = None, resize_shape: int = 640):
     corners = order_points(corners)
-
+    print("order_points", corners)
     if scale is not None:
         print(np.array(corners).shape, scale)
         corners = np.multiply(corners, scale)
 
     destination_corners = find_dest(corners)
+    print("destination_corners", destination_corners)
     M = cv2.getPerspectiveTransform(np.float32(corners), np.float32(destination_corners))
     out = cv2.warpPerspective(image, M, (destination_corners[2][0], destination_corners[2][1]), flags=cv2.INTER_LANCZOS4)
     # print("corners", corners)
@@ -153,7 +150,10 @@ def traditional_scan(og_image: np.array):
     # cv2.drawContours(con, c, -1, (0, 255, 255), 3)
     # cv2.drawContours(con, corners, -1, (0, 255, 0), 10)
     # Sorting the corners and converting them to desired shape.
+    # print("corners truoc khi sap xep", corners)
     corners = sorted(np.concatenate(corners).tolist())
+    print("corners", corners)
+    print("np.concatenate(corners).tolist()", np.concatenate(corners).tolist())
       # Displaying the corners.
     # for index, c in enumerate(corners):
     #     character = chr(65 + index)
@@ -161,8 +161,9 @@ def traditional_scan(og_image: np.array):
 
 
     output = generate_output(orig_img, corners)
-    cv2.imshow("a", output)
-    cv2.waitKey(0)
+    # print("output", output)
+    # cv2.imshow("a", output)
+    # cv2.waitKey(0)
   
     return output
 

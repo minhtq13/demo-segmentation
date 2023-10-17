@@ -100,6 +100,7 @@ def generate_output(image: np.array, corners: list, scale: tuple = None, resize_
 def traditional_scan(og_image: np.array):
     # cv2.imshow("a", og_image)
     # cv2.waitKey(0)
+    # print(og_image.shape)
     # Resize image to workable size
     dim_limit = 1080
     max_dim = max(og_image.shape)
@@ -108,6 +109,8 @@ def traditional_scan(og_image: np.array):
         og_image = cv2.resize(og_image, None, fx=resize_scale, fy=resize_scale)
     # Create a copy of resized original image for later use
     orig_img = og_image.copy()
+    # print(og_image.shape)
+
     # Repeated Closing operation to remove text from the document.
     kernel = np.ones((5, 5), np.uint8)
     og_image = cv2.morphologyEx(og_image, cv2.MORPH_CLOSE, kernel, iterations=3)
@@ -151,6 +154,8 @@ def traditional_scan(og_image: np.array):
     # cv2.drawContours(con, corners, -1, (0, 255, 0), 10)
     # Sorting the corners and converting them to desired shape.
     # print("corners truoc khi sap xep", corners)
+    # print("corners123", corners)
+    # corners = [[[96, 144]], [[652, 98]], [[688, 999]], [[47, 946]]]
     corners = sorted(np.concatenate(corners).tolist())
     print("corners", corners)
     print("np.concatenate(corners).tolist()", np.concatenate(corners).tolist())

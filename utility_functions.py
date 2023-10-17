@@ -155,7 +155,7 @@ def traditional_scan(og_image: np.array):
     # Sorting the corners and converting them to desired shape.
     # print("corners truoc khi sap xep", corners)
     # print("corners123", corners)
-    # corners = [[[96, 144]], [[652, 98]], [[688, 999]], [[47, 946]]]
+    # corners = [[[96, 129]], [[918, 96]], [[102, 728]], [[973, 686]]]
     corners = sorted(np.concatenate(corners).tolist())
     print("corners", corners)
     print("np.concatenate(corners).tolist()", np.concatenate(corners).tolist())
